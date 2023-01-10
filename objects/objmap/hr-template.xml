@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+                xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+                xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3"
+                xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+                xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3"
+                oid="02801253-a63b-478e-aec8-7b318efa08b4">
+    <name>HR template</name>
+
+    <iterationSpecification>
+        <maxIterations>999</maxIterations>
+        <tokenExpression>
+            <script>
+                <code>
+                    if (iteration == 0) {
+                        return "";
+                    } else {
+                        return +iteration;
+                        //sprintf("%03d", iteration);
+                    }
+                </code>
+            </script>
+        </tokenExpression>
+    </iterationSpecification>
+
+    <mapping>
+        <name>Fullname</name>
+        <enabled>true</enabled>
+        <description>Generate fullname</description>
+        <strength>strong</strength>
+        <source>
+            <path>givenName</path>
+        </source>
+        <source>
+            <path>familyName</path>
+        </source>
+        <expression>
+            <script>
+                <code>
+                    givenName + ' ' + familyName
+                </code>
+            </script>
+        </expression>
+        <target>
+            <path>fullName</path>
+        </target>
+    </mapping>
+
+    <mapping>
+        <name>Employee assignment</name>
+        <enabled>true</enabled>
+        <strength>strong</strength>
+        <authoritative>true</authoritative>
+        <source>
+            <path>activation/administrativeStatus</path>
+        </source>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>c:RoleType</targetType>
+                <filter>
+                    <q:equal>
+                        <q:path>c:name</q:path>
+                        <q:value>Employee</q:value>
+                    </q:equal>
+                </filter>
+            </assignmentTargetSearch>
+        </expression>
+        <target>
+            <path>assignment</path>
+        </target>
+        <condition>
+            <script>
+                <code>
+                    //log.info('Administrative status Employee assign: {}',administrativeStatus);
+                    administrativeStatus == com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationStatusType.ENABLED;
+                </code>
+            </script>
+        </condition>
+    </mapping>
+
+    <mapping>
+        <name>HR assignment</name>
+        <enabled>true</enabled>
+        <strength>strong</strength>
+        <authoritative>true</authoritative>
+        <source>
+            <path>activation/administrativeStatus</path>
+        </source>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>c:RoleType</targetType>
+                <filter>
+                    <q:equal>
+                        <q:path>c:name</q:path>
+                        <q:value>APP1-Metarole</q:value>
+                    </q:equal>
+                </filter>
+            </assignmentTargetSearch>
+        </expression>
+        <target>
+            <path>assignment</path>
+        </target>
+        <condition>
+            <script>
+                <code>
+                    //log.info('Administrative status Employee assign: {}',administrativeStatus);
+                    administrativeStatus == com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationStatusType.ENABLED;
+                </code>
+            </script>
+        </condition>
+    </mapping>
+
+    <mapping>
+        <name>Login generator</name>
+        <enabled>true</enabled>
+        <strength>strong</strength>
+        <authoritative>true</authoritative>
+        <source>
+            <path>familyName</path>
+        </source>
+        <expression>
+            <script>
+                <code>
+                    <!--log.info('Toto je meno: {}',familyName);
+                    basic.lc(familyName?.norm) + iterationToken
+                    familyName + iterationToken
+                    familyName-->
+                    basic.lc(familyName?.norm) + iterationToken
+                </code>
+            </script>
+        </expression>
+        <target>
+            <path>name</path>
+        </target>
+    </mapping>
+
+</objectTemplate>

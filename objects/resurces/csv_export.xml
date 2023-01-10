@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- (c) 2011-2022 Evolveum, All rights reserved -->
+
+<resource xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+          xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+          xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
+          xmlns:icfc="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/connector-schema-3"
+          oid="10000000-9999-9999-0000-a000ff000003">
+    <!-- Resource name. It will be displayed in GUI.  -->
+    <name>CSV-1 extract</name>
+    <connectorRef type="ConnectorType">
+        <filter>
+            <q:equal>
+                <q:path>c:connectorType</q:path>
+                <q:value>com.evolveum.polygon.connector.csv.CsvConnector</q:value>
+            </q:equal>
+        </filter>
+    </connectorRef>
+    <!-- Configuration section contains configuration of the connector,
+             such as hostnames and passwords -->
+    <connectorConfiguration>
+        <!-- Configuration specific for the CSV connector -->
+        <icfc:configurationProperties xmlns:icfcsv="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-csv/com.evolveum.polygon.connector.csv.CsvConnector">
+            <icfcsv:filePath>/Users/tomas/Downloads/midpoint-4.6/csv/app-1.csv</icfcsv:filePath>
+            <icfcsv:encoding>utf-8</icfcsv:encoding>
+            <icfcsv:quoteMode>ALL</icfcsv:quoteMode>
+            <icfcsv:quote>"</icfcsv:quote>
+            <icfcsv:fieldDelimiter>,</icfcsv:fieldDelimiter>
+            <icfcsv:multivalueDelimiter>;</icfcsv:multivalueDelimiter>
+            <icfcsv:uniqueAttribute>employeeNumber</icfcsv:uniqueAttribute>
+        </icfc:configurationProperties>
+        <!-- Generic ICF configuration -->
+    </connectorConfiguration>
+    <!-- Resource Schema Handling definition.
+             This part defines how the schema defined above will be used by
+             midPoint. It defines expressions and limitations for individual
+             schema attributes.
+
+             The expressions that describe both inbound and outbound flow of
+             the attributes are defined in this section.
+
+             This is the part where most of the customization takes place.
+        -->
+    <schemaHandling>
+        <!-- Definition of default account type.
+                 This is now the only account type that midPoint can work with. -->
+        <objectType>
+            <kind>account</kind>
+            <intent>default</intent>
+            <displayName>Default Account</displayName>
+            <description>This is the configuration for default account in this resource.</description>
+            <documentation>Default account type represents _standard_ accounts.</documentation>
+            <default>true</default>
+            <objectClass>ri:AccountObjectClass</objectClass>
+            <attribute>
+                <ref>ri:dn</ref>
+                <displayName>dn</displayName>
+                <!-- Access limitation for this attribute. -->
+                <outbound>
+                    <description>This mapping generates the account login attribute.</description>
+                    <source>
+                        <path>givenName</path>
+                    </source>
+                    <source>
+                        <path>familyName</path>
+                    </source>
+                    <expression>
+                        <script>
+                            <code>
+                                'cn=' + basic.norm(givenName) + ' ' + basic.norm(familyName) + ',ou=velvon,dc=com'
+                            </code>
+                        </script>
+                    </expression>
+                </outbound>
+            </attribute>
+
+            <attribute>
+                <ref>ri:employeeNumber</ref>
+                <displayName>Employee Number</displayName>
+                <limitations>
+                    <maxOccurs>1</maxOccurs>
+                </limitations>
+                <outbound>
+                    <strength>strong</strength>
+                    <source>
+                        <path>employeeNumber</path>
+                    </source>
+                </outbound>
+            </attribute>
+
+            <attribute>
+                <ref>ri:givenName</ref>
+                <displayName>Given Name</displayName>
+                <outbound>
+                    <source>
+                        <path>givenName</path>
+                    </source>
+                </outbound>
+            </attribute>
+
+            <attribute>
+                <ref>ri:sn</ref>
+                <displayName>Last name</displayName>
+                <outbound>
+                    <source>
+                        <path>familyName</path>
+                    </source>
+                </outbound>
+            </attribute>
+
+            <attribute>
+                <ref>ri:disabled</ref>
+                <displayName>Last name</displayName>
+                <description>Definition of Lastname attribute handling.</description>
+                <outbound>
+                    <source>
+                        <path>familyName</path>
+                    </source>
+                </outbound>
+            </attribute>
+
+            <attribute>
+                <tolerant>false</tolerant>
+                <ref>ri:MemberOf</ref>
+                <displayName>Member Of</displayName>
+                <limitations>
+                    <minOccurs>0</minOccurs>
+                    <maxOccurs>unbounded</maxOccurs>
+                </limitations>
+                <outbound>
+                    <source>
+                        <path>organizationalUnit</path>
+                    </source>
+                </outbound>
+            </attribute>
+
+            <activation>
+                <existence>
+                    <outbound>
+                        <expression>
+                            <path>$focusExists</path>
+                        </expression>
+                    </outbound>
+                </existence>
+
+                <administrativeStatus>
+                    <outbound>
+                        <expression>
+                            <script>
+                                <code>
+                                    import com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationStatusType;
+                                    if (legal &amp;&amp; assigned) {
+                                        input;
+                                    } else {
+                                        ActivationStatusType.DISABLED;
+                                    }
+                                </code>
+                            </script>
+                        </expression>
+                    </outbound>
+                </administrativeStatus>
+            </activation>
+
+            <credentials>
+                <password>
+                    <outbound/>
+                </password>
+            </credentials>
+        </objectType>
+    </schemaHandling>
+
+    <capabilities xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+        <configured>
+            <cap:activation>
+                <cap:status>
+                    <cap:attribute>ri:disabled</cap:attribute>
+                    <cap:enableValue>false</cap:enableValue>
+                    <cap:disableValue>true</cap:disableValue>
+                </cap:status>
+            </cap:activation>
+            <cap:countObjects>
+                <cap:simulate>sequentialSearch</cap:simulate>
+            </cap:countObjects>
+        </configured>
+    </capabilities>
+    <synchronization>
+        <objectSynchronization>
+            <!--
+	                The synchronization for this resource is enabled.
+	                It means that the synchronization will react to changes detected by
+	                the system (live sync task, discovery or reconciliation) -->
+            <name>Default account</name>
+            <kind>account</kind>
+            <intent>default</intent>
+            <enabled>true</enabled>
+            <correlation>
+                <q:description>
+                    Correlation expression is a search query.
+                    Following search query will look for users that have "employeeNumber"
+                    equal to the "empnumber" attribute of the account.
+                    The condition will ensure that "empnumber" is not
+                    empty, otherwise it would match any midPoint user
+                    with empty "employeeNumber" attribute, such as "administrator".
+                    The correlation rule always looks for users, so it will not match
+                    any other object type.
+                </q:description>
+                <q:equal>
+                    <q:path>employeeNumber</q:path>
+                    <expression>
+                        <path>$projection/attributes/ri:empnumber</path>
+                    </expression>
+                </q:equal>
+                <condition>
+                    <script>
+                        <code>basic.getAttributeValue(projection, 'empnumber') != null</code>
+                    </script>
+                </condition>
+            </correlation>
+            <reaction>
+                <situation>linked</situation>
+                <synchronize>true</synchronize>
+            </reaction>
+            <reaction>
+                <situation>deleted</situation>
+                <synchronize>true</synchronize>
+                <action>
+                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#unlink</handlerUri>
+                </action>
+            </reaction>
+            <reaction>
+                <situation>unlinked</situation>
+                <synchronize>true</synchronize>
+                <action>
+                    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
+                </action>
+            </reaction>
+            <reaction>
+                <situation>unmatched</situation>
+            </reaction>
+        </objectSynchronization>
+    </synchronization>
+</resource>

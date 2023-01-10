@@ -1,0 +1,13 @@
+<role xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+      xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+      xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
+      oid="" >
+    <name>Employee</name>
+    <inducement id = "1">
+        <targetRef oid = "bc7afe9c-dbac-4b9a-82ea-fd08fdc1aac3" type = "RoleType"/>
+    </inducement>
+    <inducement id = "2">
+        <targetRef oid = "b1899c85-fa72-4205-9e18-e33b8679af6e" type = "RoleType"/>
+    </inducement>
+</role>
+

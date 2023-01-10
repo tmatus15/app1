@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!-- (c) 2011-2022 Evolveum, All rights reserved -->
+<role xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+      xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+      xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
+      oid="14cc165f-f13e-42a8-825c-aed4adcfa613">
+    <name>APP1-Metarole</name>
+    <description>
+        This role assigns CSV export  resource
+    </description>
+    <inducement id ="1">
+        <construction>
+            <resourceRef oid="10000000-9999-9999-0000-a000ff000003" type="c:ResourceType"/>
+            <kind>account</kind>
+            <attribute>
+                <ref>ri:MemberOf</ref>
+                <outbound>
+                    <strength>strong</strength>
+                    <expression>
+                        <value>wifi-user</value>
+                    </expression>
+                </outbound>
+            </attribute>
+        </construction>
+    </inducement>
+
+    <inducement id = "2">
+        <construction>
+            <resourceRef oid="10000000-9999-9999-0000-a000ff000003" type="c:ResourceType"/>
+            <kind>account</kind>
+            <attribute>
+                <ref>ri:MemberOf</ref>
+                <outbound>
+                    <strength>strong</strength>
+                    <expression>
+                        <value>hr-user</value>
+                    </expression>
+                </outbound>
+            </attribute>
+        </construction>
+       <!-- <condition>
+            <expression>
+                <script>
+                    <code>
+                        focus.organizationalUnit == "Human Resource"
+                    </code>
+                </script>
+            </expression>
+        </condition>-->
+    </inducement>
+</role>
